@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Edit player</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+	<div class="container">
+		<h1 class="text-center">Edit player</h1>		
+		<form th:action="@{/players/edit/{id}(id=${player.id})}" method="post">
+			<div class="form-group my-2">
+				<label for="name" class="form-label">Name: </label> <input type="text" class="form-control" id="name"
+					name="name" th:value="${player.name}" required />
+
+				<label for="team" class="form-label">Teams: </label>
+				<select class="form-select my-2" name="team.id" id="team">
+					<option th:each="team : ${teams}" th:value="${team.id}" th:text="${team.name}"></option>
+				</select>
+			</div>
+			<button type="submit" class="btn btn-primary my-3">Save
+				player</button>
+		</form>
+
+		<a href="/players" class="nav-link mt-3">Back to players</a>
+	</div>
+
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+		crossorigin="anonymous"></script>
+</body>
+
+</html>

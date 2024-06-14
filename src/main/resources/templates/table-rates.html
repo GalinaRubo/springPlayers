@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>table_rates</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+	<link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
+</head>
+
+<body>
+	<div class="container float-left ">
+		<h1 class="text-center ms-5">Table Rates</h1>
+		<div class="text-center float-left">
+			<h3>Tournament: [[${tournament.name}]]</h3>
+		</div>
+		<nav class="navbar nav" style="width: 35% ">
+			<div class="nav-link">
+				<a th:href="@{/tournaments/info/{id}(id=${tournament.id})}">Back info tournament</a>
+			</div>
+		</nav>
+		<div data-bs-spy="scroll" data-bs-target="group-list" data-bs-offset="0" class="scrollspy-example" tabindex="0">
+			<table class="table table-info align-left table-sm">
+				<thead class="thead-dark">
+					<tr>
+						<th scope="row"></th>
+						<td class="text-center" style="width: 25%">Team</td>
+						<td class="text-center" style="width: 3%">:</td>
+						<td class="text-center" style="width: 25%">Rival</td>
+
+						<td class="text-center" style="width: 28%">Types bet / Ratio bet</td>						
+						<td class="text-center" style="width: 8%">Size of bet</td>
+						<td class="text-center" style="width: 10%"></td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="rates, itemStat : ${ListRates}"
+						th:class="${itemStat.index} % 2 > 0 ? 'table table-danger':'table table-warning'">
+						<form th:action="@{/rates/currentRatio/{id}(id=${tournament.id})}" method="post">
+							<th scope="row"></th>
+							<input hidden th:name="|rates.id|" th:value="${rates.getId()}">
+							<td class="text-center" style="width: 25%">[[${rates.getTeam().getName()}]]</td>
+							<td class="text-center" style="width: 3%">:</td>
+							<td class="text-center" style="width: 25%">[[${rates.getRival().getName()}]]</td>
+							<td class="text-center" style="width: 28%">
+								<select class="form-select" name="userLogin">
+									<option th:each="ratioItem : ${ListRatios}"
+										th:if="${ratioItem.getRateId()} == ${rates.getId()}" th:value="${ratioItem.typeBet.id} + '/' + ${ratioItem.sizeRatio}"
+										th:text="${ratioItem.typeBet.name} + '/' + ${ratioItem.sizeRatio}">										
+									</option>							
+								</select>
+							</td>
+							<td class="text-center" style="width: 8%">
+								<input class="form-control" th:value="${currat.sizeBet}" name="sizeBet">
+							</td>
+							<td class="text-center" style="width: 10%">
+								<button class="btn btn-secondary" type="submit">save bet</button>
+							</td>
+						</form>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+			crossorigin="anonymous"></script>
+</body>
+
+</html>

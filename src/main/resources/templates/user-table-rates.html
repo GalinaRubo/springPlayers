@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>user-table_rates</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+	<link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
+</head>
+
+<body>
+	<div class="container float-left ">
+		<h2 class="text-center mt-5">User: [[${login}]]</h2>
+		<div class="text-center float-left">
+			<h3>[[${tournament.name}]]</h3>
+		</div>
+		<nav class="navbar nav" style="width: 35% ">
+			<div class="nav-link">
+				<a th:href="@{/rates/info/{id}(id=${tournament.id})}">Back table rates</a>
+			</div>
+		</nav>
+		<div data-bs-spy="scroll" data-bs-target="group-list" data-bs-offset="0" class="scrollspy-example" tabindex="0">
+			<table class="table table-info align-left table-sm">
+				<thead class="thead-dark">
+					<tr>
+						<th scope="row"></th>
+						<td class="text-center" style="width: 25%">Team</td>
+						<td class="text-center" style="width: 3%">:</td>
+						<td class="text-center" style="width: 25%">Rival</td>
+						<td class="text-center" style="width: 25%">Types bet</td>
+						<td class="text-center" style="width: 5%">Ratio bet</td>
+						<td class="text-center" style="width: 8%">Size bet</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="rates, itemStat : ${userratios}"
+						th:class="${itemStat.index} % 2 > 0 ? 'table table-danger':'table table-warning'">
+						<form>
+							<th scope="row"></th>
+							<td class="text-center" style="width: 25%">[[${rates.getRates().getTeam().getName()}]]</td>
+							<td class="text-center" style="width: 3%">:</td>
+							<td class="text-center" style="width: 25%">[[${rates.getRates().getRival().getName()}]]</td>
+							<td class="text-center" style="width: 25%">[[${rates.getTypeBet().getName()}]]</td>
+							<td class="text-center" style="width: 5%">[[${rates.getRatioBet()}]]</td>
+							<td class="text-center" style="width: 8%">[[${rates.getSizeBet()}]]</td>
+						</form>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+			crossorigin="anonymous"></script>
+</body>
+
+</html>

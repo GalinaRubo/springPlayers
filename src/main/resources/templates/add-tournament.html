@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Add tournament</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+	<div class="container">
+		<h1 class="text-center">Add tournament</h1>		
+		<form th:action="@{/tournaments/add}" method="post">
+			<div class="form-group my-2">
+				<label for="name" class="form-label">Name: </label>
+				 <input type="text" class="form-control" id="name"
+					name="name" th:value="${tournament.name}" required/>
+				<label for="date" class="form-label">Date: </label>
+				<input type="date" class="form-control" id="date"
+					th:field="${tournament.date}" required />
+					<label for="city" class="form-label">City: </label>
+				<input type="city" class="form-control" id="city"
+					name="city" th:value="${tournament.city}" required />
+			</div>
+			<button type="submit" class="btn btn-primary my-3">Save
+				tournament</button>
+		</form>
+
+		<a href="/tournaments" class="nav-link mt-3">Back to tournaments</a>
+	</div>
+
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+		crossorigin="anonymous"></script>
+</body>
+
+</html>
