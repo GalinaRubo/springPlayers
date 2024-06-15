@@ -75,7 +75,7 @@ public class StatisticsController {
 			return "statistics";
 		} else {
 			
-			List<Rates> rates = ratesService.getAllRates();
+			List<Rates> rates = ratesService.getRatesByTournamentId(id);
 			{
 				for(Rates rt: rates) {
 						for (int i = 1; i < 6; i++) {
