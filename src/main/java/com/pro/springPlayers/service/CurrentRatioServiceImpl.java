@@ -34,12 +34,19 @@ public class CurrentRatioServiceImpl implements CurrentRatioService {
 	public void updateCurrentRatio(Long id, CurrentRatio currentRatio) {
 		CurrentRatio _currentRatio = repository.findById(id).orElse(null);
 		if(_currentRatio != null) {
-
+			System.out.printf("все ок!!! \n");
 			_currentRatio.setUserLogin(currentRatio.getUserLogin());
 			_currentRatio.setRates(currentRatio.getRates());
 			_currentRatio.setTypeBet(currentRatio.getTypeBet());
 			_currentRatio.setRatioBet(currentRatio.getRatioBet());
-			_currentRatio.setSizeBet(currentRatio.getSizeBet());			
+			_currentRatio.setSizeBet(currentRatio.getSizeBet());
+			_currentRatio.setYesNo(currentRatio.getYesNo());
+			System.out.printf("rate_id=" + _currentRatio.getRates().getId() + "\n");
+			System.out.printf("bet_id=" + _currentRatio.getTypeBet().getId() + "\n");
+			System.out.printf("user=" + _currentRatio.getUserLogin() + "   \n");
+			System.out.printf("bet_ratio=" + _currentRatio.getRatioBet() + "\n");
+			System.out.printf("size_bet=" + _currentRatio.getSizeBet() + "\n");
+			System.out.printf("yesno=" + _currentRatio.getYesNo() + "   \n\n");
 			repository.save(_currentRatio);
 		}		
 	}
