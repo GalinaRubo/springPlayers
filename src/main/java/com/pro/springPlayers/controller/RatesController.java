@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +68,8 @@ public class RatesController {
 	@Autowired
 	private ResultBetService resultBetService;
 
-	//демонстрация сформированной таблицы команд по группам выбранного чемпионата
-	
+	// демонстрация сформированной таблицы команд по группам выбранного чемпионата
+
 	@GetMapping("/info/{id}")
 
 	public String addRDetails(@PathVariable Long id, Model model, HttpSession session) {
@@ -83,8 +84,8 @@ public class RatesController {
 		model.addAttribute("mess", session.getAttribute("mess"));
 		return "team-rates";
 	}
-	
-	//формирование таблицы команд  по группам выбранного чемпионата
+
+	// формирование таблицы команд по группам выбранного чемпионата
 
 	@GetMapping("/add/{id}")
 
@@ -139,7 +140,7 @@ public class RatesController {
 		return "table-rates";
 	}
 
-	//выбор таблицы игр  конкретной команды
+	// выбор таблицы игр конкретной команды
 	@GetMapping("/{id}")
 
 	public String BettingTeams(@PathVariable Long id, Model model, HttpSession session) {
@@ -167,8 +168,8 @@ public class RatesController {
 		return "table-rates";
 	}
 
-	//анализ сделанной ставки и ее запись
-	
+	// анализ сделанной ставки и ее запись
+
 	@PostMapping("/currentRatio/{id}")
 
 	public String addUserRatio(@PathVariable Long id, HttpSession session, @ModelAttribute CurrentRatio currat,
@@ -202,8 +203,8 @@ public class RatesController {
 
 		return addRDetails(id, model, session);
 	}
-	
-	//ставки пользователя
+
+	// ставки пользователя
 
 	@GetMapping("/userbets")
 
@@ -217,8 +218,8 @@ public class RatesController {
 		model.addAttribute("tournament", tournament);
 		return "user-table-rates";
 	}
-	
-	//сопоставление результатов чемпионата и ставок
+
+	// сопоставление результатов чемпионата и ставок
 
 	@GetMapping("/winbet/{id}")
 
@@ -228,77 +229,83 @@ public class RatesController {
 		List<ResultBet> _result = resultBetService.getAllResultBetByTournamentId(id);
 
 		if (_result.isEmpty()) {
-			List<Statistics> statistics = statisticsService.getAllStatistics();
 			List<TrueBet> winbets = new ArrayList<TrueBet>();
-			List<Rates> rates = ratesService.getAllRates();
+			List<Rates> rates = ratesService.getRatesByTournamentId(id);
 
-			Iterator<Statistics> stIterator = statistics.iterator();// создаем итератор
-			while (stIterator.hasNext()) {// до тех пор, пока в списке есть элементы
-
-				Statistics nextStatistics = stIterator.next();// получаем следующий элемент
-				if (nextStatistics.getScoreTeam().equals(nextStatistics.getScoreRival())) {
-					stIterator.remove();// удаляем статистику с нужным именем
-				}
-				System.out.printf("statistics_size =" + statistics.size() + "\n\n");
-			}
 			for (Rates rt : rates) {
 				int count_game = 0;
 				int index_winner = 0;
-				boolean flag_end = true;
-
+				List<Statistics> statistics = statisticsService.getStatisticsByRateId(rt.getId());
 				ListIterator<Statistics> listIter = statistics.listIterator(); // создаем итератор
 				while (listIter.hasNext()) {// до тех пор, пока в списке есть элементы
 					Statistics stat = listIter.next();
-					if (stat.getRate().getId() == rt.getId()) {
-						flag_end = false;
-						if (listIter.nextIndex() == 1) {
-							TrueBet tb = new TrueBet();
-							tb.setRateId(rt.getId());
-							if (stat.getTeam() == stat.getRate().getTeam())
-								tb.setBetId(typeBetService.getTypeBetByName("team_first_goal").getId());
-							else
-								tb.setBetId(typeBetService.getTypeBetByName("rival_first_goal").getId());
-							winbets.add(tb);
-						}
-						count_game++;// счетчик игр
-						index_winner += stat.getScoreTeam() > stat.getScoreRival() ? 1 : -1;
-					} else
-						flag_end = true;
+					if (listIter.nextIndex() == 1) {
+						TrueBet tb = new TrueBet();
+						tb.setRateId(rt.getId());
+						if (stat.getTeam() == stat.getRate().getTeam())
+							tb.setBetId(typeBetService.getTypeBetByName("team_first_goal").getId());
+						else
+							tb.setBetId(typeBetService.getTypeBetByName("rival_first_goal").getId());
+						winbets.add(tb);
+					}
+					count_game++;// счетчик игр
+					index_winner += stat.getScoreTeam() > stat.getScoreRival() ? 1 : -1;
 				}
-				if (flag_end == false) {
-					TrueBet tbg = new TrueBet();
-					tbg.setRateId(rt.getId());
-					if (count_game > 3)
-						tbg.setBetId(typeBetService.getTypeBetByName("more_then_three_games").getId());
-					else
-						tbg.setBetId(typeBetService.getTypeBetByName("three_games").getId());
-					winbets.add(tbg);
 
-					TrueBet tbw = new TrueBet();
-					tbw.setRateId(rt.getId());
-					if (index_winner > 0)
-						tbw.setBetId(typeBetService.getTypeBetByName("winner_team").getId());
-					else
-						tbw.setBetId(typeBetService.getTypeBetByName("winner_rival").getId());
-					winbets.add(tbw);					
-				}
+				TrueBet tb = new TrueBet();
+				tb.setRateId(rt.getId());
+				if (count_game > 3)
+					tb.setBetId(typeBetService.getTypeBetByName("more_then_three_games").getId());
+				else
+					tb.setBetId(typeBetService.getTypeBetByName("three_games").getId());
+				winbets.add(tb);
+
+				TrueBet tbw = new TrueBet();
+				tbw.setRateId(rt.getId());
+				if (index_winner > 0)
+					tbw.setBetId(typeBetService.getTypeBetByName("winner_team").getId());
+				else
+					tbw.setBetId(typeBetService.getTypeBetByName("winner_rival").getId());
+				winbets.add(tbw);
 			}
-			
-			//отметка выигрышных ставок у пользователей
-			
+			for (TrueBet tb : winbets) {
+
+				System.out.printf("rate_id=" + tb.getRateId() + "   \n");
+				System.out.printf("bet_type_id=" + tb.getBetId() + " \n\n");
+			}
+
+			// отметка выигрышных ставок у пользователей
+
 			List<CurrentRatio> currentratios = currentRatioService.getAllCurrentRatio();
 			for (TrueBet trb : winbets) {
 				for (CurrentRatio cr : currentratios) {
+					CurrentRatio _cur = currentRatioService.getCurrentRatioById(cr.getId());
+					if (cr.getRates().getId() == trb.getRateId() && cr.getTypeBet().getId() == trb.getBetId()) {
+						System.out.printf("rate_id=" + cr.getRates().getId() + "   \n");
+						System.out.printf("rate_id=" + trb.getRateId() + "   \n");
+						System.out.printf("bet_id=" + cr.getTypeBet().getId() + "   \n");
+						System.out.printf("bet_id=" + trb.getBetId() + "   \n\n");
+						_cur.setYesNo(true);
+					} 
 
-					if (cr.getRates().getId() == trb.getRateId() && cr.getTypeBet().getId() == trb.getBetId())
-						cr.setYesNo(true);
-					else
-						cr.setYesNo(false);
-					currentRatioService.updateCurrentRatio(cr.getId(), cr);
+					currentRatioService.updateCurrentRatio(cr.getId(), _cur);
 				}
+
 			}
-			//ссуммирование выигрышных ставок пользователей
-			
+
+			List<CurrentRatio> current = currentRatioService.getAllCurrentRatio();
+			for (CurrentRatio cr : current) {
+
+				System.out.printf("cur_id=" + cr.getId() + "   \n");
+				System.out.printf("user=" + cr.getUserLogin() + "   \n");
+				System.out.printf("type_bet=" + cr.getTypeBet().getId() + "   \n");
+				System.out.printf("ratio_bet=" + cr.getRatioBet() + "   \n");
+				System.out.printf("size_bet=" + cr.getSizeBet() + "   \n");
+				System.out.printf("yes_no=" + cr.getYesNo() + "   \n\n");
+			}
+
+			// ссуммирование выигрышных ставок пользователей
+
 			List<User> users = userService.getAllUsers();
 			for (User user : users) {
 				List<CurrentRatio> currentRatio = currentRatioService.getAllCurrentRatioByUserLogin(user.getEmail());
@@ -314,8 +321,8 @@ public class RatesController {
 				}
 			}
 		}
-		//сортировка списка пользователей с сыгранными ставками по убыванию
-		
+		// сортировка списка пользователей с сыгранными ставками по убыванию
+
 		List<ResultBet> result = resultBetService.getAllResultBetByTournamentId(id);
 		Comparator<ResultBet> compareByBets = Comparator.comparing(ResultBet::getResultBet);
 		ArrayList<ResultBet> sortedBets = result.stream().sorted(compareByBets.reversed())
@@ -334,7 +341,7 @@ public class RatesController {
 		return "final";
 	}
 
-	//демонстрация результатов ставок
+	// демонстрация результатов ставок
 	@GetMapping("/resultbets/{id}")
 
 	public String showResultBets(@PathVariable Long id, Model model) {
@@ -357,8 +364,8 @@ public class RatesController {
 		return "final";
 	}
 
-	//расчет и изменение коэффециентов после очередной ставки
-	
+	// расчет и изменение коэффециентов после очередной ставки
+
 	public void dataRetio(Long ratesId, Long betId, Integer sizeBet) {
 		List<CurrentRatio> currentRatios = currentRatioService.getAllCurrentRatioByRatesId(ratesId);
 		double sum_bets = 0;
@@ -389,4 +396,45 @@ public class RatesController {
 
 		}
 	}
+
+	@GetMapping("/test/{id}")
+
+	public String testResultStatistics(@PathVariable Long id, Model model, HttpSession session) {
+
+		List<Rates> rttest = ratesService.getRatesByTournamentId(id);
+		for (Rates rt : rttest) {
+			int countGame = 0;
+			List<Statistics> sttest = statisticsService.getStatisticsByRateId(rt.getId());
+			for (Statistics st : sttest) {
+				int scoreTeam = randStat(10, 25);
+				int scoreRival = randStat(10, 25);
+				scoreTeam = scoreTeam >= scoreRival ? 25 : scoreTeam;
+				scoreRival = scoreRival > scoreTeam ? 25 : scoreRival;
+				if (scoreTeam == scoreRival)
+					scoreRival = 27;
+				if (scoreTeam > scoreRival)
+					countGame++;
+				else
+					countGame--;
+				st.setScoreTeam(scoreTeam);
+				st.setScoreRival(scoreRival);
+				Random random = new Random();
+				if (random.nextInt(2) == 0)
+					st.setTeam(rt.getTeam());
+				else
+					st.setTeam(rt.getRival());
+				statisticsService.updateStatistics(st.getId(), st);
+				if (countGame == 3 || countGame == -3)
+					break;
+			}
+		}
+
+		return addRDetails(id, model, session);
+
+	}
+
+	public int randStat(int min, int max) {
+		return (int) ((Math.random() * (max - min)) + min);
+	}
+
 }
